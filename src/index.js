@@ -1,11 +1,12 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import { toNodeHandler } from "better-auth/node";
+import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import { auth } from "./auth.js";
 import { connectDB } from "./db.js";
 
 const app = express();
+
 const port = process.env.PORT || 5000;
 const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
 
@@ -17,9 +18,8 @@ app.use(
 );
 
 /*
-  Important:
   Better Auth handler must be mounted before express.json().
-  Express 5 does not support "/api/auth/*".
+  Express 5 needs named wildcard route syntax.
 */
 app.all("/api/auth/{*path}", toNodeHandler(auth));
 
@@ -36,6 +36,33 @@ app.get("/health", (req, res) => {
   res.send({
     success: true,
     message: "Server health check passed.",
+  });
+});
+
+app.get("/api/auth-session", async (req, res) => {
+  try {
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
+
+    res.send({
+      success: true,
+      authenticated: Boolean(session?.user),
+      session,
+    });
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: "Failed to read Better Auth session.",
+      error: error.message,
+    });
+  }
+});
+
+app.use((req, res) => {
+  res.status(404).send({
+    success: false,
+    message: "API route not found.",
   });
 });
 

@@ -4,7 +4,7 @@ const uri = process.env.MONGODB_URI;
 const dbName = process.env.DB_NAME || "Scaffold";
 
 if (!uri) {
-  throw new Error("MONGODB_URI is missing in environment variables.");
+  throw new Error("MONGODB_URI is missing in .env file.");
 }
 
 export const mongoClient = new MongoClient(uri, {
@@ -17,8 +17,14 @@ export const mongoClient = new MongoClient(uri, {
 
 export const database = mongoClient.db(dbName);
 
+export const collections = {
+  users: database.collection("users"),
+  donationRequests: database.collection("donationRequests"),
+  funds: database.collection("funds"),
+};
+
 export const connectDB = async () => {
   await mongoClient.connect();
   await database.command({ ping: 1 });
-  console.log(`MongoDB connected: ${dbName}`);
+  console.log(`Pinged MongoDB. Connected to database: ${dbName}`);
 };
