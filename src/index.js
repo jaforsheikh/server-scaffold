@@ -7,8 +7,17 @@ import { connectDB } from "./db.js";
 
 const app = express();
 
-const port = process.env.PORT || 5000;
 const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+const port = process.env.PORT || 5000;
+
+let dbReady = false;
+
+const ensureDB = async () => {
+  if (!dbReady) {
+    await connectDB();
+    dbReady = true;
+  }
+};
 
 app.use(
   cors({
@@ -17,10 +26,19 @@ app.use(
   })
 );
 
-/*
-  Better Auth handler must be mounted before express.json().
-  Express 5 needs named wildcard route syntax.
-*/
+app.use(async (req, res, next) => {
+  try {
+    await ensureDB();
+    next();
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: "Database connection failed.",
+      error: error.message,
+    });
+  }
+});
+
 app.all("/api/auth/{*path}", toNodeHandler(auth));
 
 app.use(express.json());
@@ -66,17 +84,10 @@ app.use((req, res) => {
   });
 });
 
-const startServer = async () => {
-  try {
-    await connectDB();
+if (process.env.NODE_ENV !== "production") {
+  app.listen(port, () => {
+    console.log(`Scaffold server running on port ${port}`);
+  });
+}
 
-    app.listen(port, () => {
-      console.log(`Scaffold server running on port ${port}`);
-    });
-  } catch (error) {
-    console.error("Failed to start server:", error);
-    process.exit(1);
-  }
-};
-
-startServer();
+export default app;
