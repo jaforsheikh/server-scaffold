@@ -1,35 +1,30 @@
 {
   "name": "server-scaffold",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
+  "description": "Scaffold blood donation backend server with Express, MongoDB and Better Auth.",
+  "main": "src/index.js",
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js"
   },
+  "keywords": [
+    "express",
+    "mongodb",
+    "better-auth",
+    "blood-donation"
+  ],
+  "author": "Md Jafar Ali Shaikh",
+  "license": "ISC",
   "dependencies": {
-    "@better-auth/mongo-adapter": "^1.6.20",
-    "better-auth": "^1.6.20",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
+    "@better-auth/mongo-adapter": "^1.6.6",
+    "better-auth": "^1.6.6",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "mongodb": "^7.3.0",
-    "next": "16.2.9",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "mongodb": "^7.0.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "babel-plugin-react-compiler": "1.0.0",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.9",
-    "tailwindcss": "^4"
-  },
-  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).",
-  "main": "index.js",
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs"
+    "nodemon": "^3.1.11"
+  }
 }
