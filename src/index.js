@@ -1,11 +1,15 @@
-import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
+import dotenv from "dotenv";
+import { toNodeHandler } from "better-auth/node";
 import { auth } from "./auth.js";
 import { connectDB } from "./db.js";
-import donationRequestRoutes from "./routes/donationRequestRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import donationRequestRoutes from "./routes/donationRequestRoutes.js";
+import dashboardRoutes from "./routes/dashboardRoutes.js";
+import fundingRoutes from "./routes/fundingRoutes.js";
+
+dotenv.config();
 
 const app = express();
 
@@ -13,18 +17,12 @@ const port = process.env.PORT || 5000;
 
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://localhost:5174",
+  "http://127.0.0.1:5173",
+  "http://127.0.0.1:5174",
   "https://client-scaffold-six.vercel.app",
   process.env.CLIENT_URL,
 ].filter(Boolean);
-
-let dbReady = false;
-
-const ensureDB = async () => {
-  if (!dbReady) {
-    await connectDB();
-    dbReady = true;
-  }
-};
 
 app.use(
   cors({
@@ -33,19 +31,6 @@ app.use(
   })
 );
 
-app.use(async (req, res, next) => {
-  try {
-    await ensureDB();
-    next();
-  } catch (error) {
-    res.status(500).send({
-      success: false,
-      message: "Database connection failed.",
-      error: error.message,
-    });
-  }
-});
-
 app.all("/api/auth/{*path}", toNodeHandler(auth));
 
 app.use(express.json());
@@ -53,7 +38,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send({
     success: true,
-    message: "Scaffold backend server is running.",
+    message: "Scaffold Blood Donation Server is running.",
   });
 });
 
@@ -64,28 +49,10 @@ app.get("/health", (req, res) => {
   });
 });
 
-app.get("/api/auth-session", async (req, res) => {
-  try {
-    const session = await auth.api.getSession({
-      headers: fromNodeHeaders(req.headers),
-    });
-
-    res.send({
-      success: true,
-      authenticated: Boolean(session?.user),
-      session,
-    });
-  } catch (error) {
-    res.status(500).send({
-      success: false,
-      message: "Failed to read Better Auth session.",
-      error: error.message,
-    });
-  }
-});
-
 app.use("/api/users", userRoutes);
 app.use("/api/donation-requests", donationRequestRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/fundings", fundingRoutes);
 
 app.use((req, res) => {
   res.status(404).send({
@@ -94,10 +61,16 @@ app.use((req, res) => {
   });
 });
 
-if (process.env.NODE_ENV !== "production") {
-  app.listen(port, () => {
-    console.log(`Scaffold server running on port ${port}`);
+connectDB()
+  .then(() => {
+    if (process.env.NODE_ENV !== "production") {
+      app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+      });
+    }
+  })
+  .catch((error) => {
+    console.error("MongoDB connection error:", error);
   });
-}
 
 export default app;
