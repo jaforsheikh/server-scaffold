@@ -7,8 +7,13 @@ import { connectDB } from "./db.js";
 
 const app = express();
 
-const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
 const port = process.env.PORT || 5000;
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://client-scaffold-six.vercel.app",
+  process.env.CLIENT_URL,
+].filter(Boolean);
 
 let dbReady = false;
 
@@ -21,7 +26,7 @@ const ensureDB = async () => {
 
 app.use(
   cors({
-    origin: clientUrl,
+    origin: allowedOrigins,
     credentials: true,
   })
 );

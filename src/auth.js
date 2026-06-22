@@ -2,15 +2,22 @@ import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { database, mongoClient } from "./db.js";
 
+const trustedOrigins = [
+  "http://localhost:5173",
+  "https://client-scaffold-six.vercel.app",
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
+  basePath: "/api/auth",
   secret: process.env.BETTER_AUTH_SECRET,
 
   database: mongodbAdapter(database, {
     client: mongoClient,
   }),
 
-  trustedOrigins: [process.env.CLIENT_URL || "http://localhost:5173"],
+  trustedOrigins,
 
   emailAndPassword: {
     enabled: true,
