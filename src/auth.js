@@ -2,6 +2,8 @@ import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { database, mongoClient } from "./db.js";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const trustedOrigins = [
   "http://localhost:5173",
   "https://client-scaffold-six.vercel.app",
@@ -19,8 +21,19 @@ export const auth = betterAuth({
 
   trustedOrigins,
 
+  advanced: {
+    useSecureCookies: isProduction,
+    defaultCookieAttributes: {
+      sameSite: isProduction ? "none" : "lax",
+      secure: isProduction,
+      httpOnly: true,
+      partitioned: isProduction,
+    },
+  },
+
   emailAndPassword: {
     enabled: true,
+    autoSignIn: true,
   },
 
   user: {
