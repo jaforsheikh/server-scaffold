@@ -4,6 +4,7 @@ import cors from "cors";
 import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import { auth } from "./auth.js";
 import { connectDB } from "./db.js";
+import userRoutes from "./routes/userRoutes.js";
 
 const app = express();
 
@@ -81,6 +82,8 @@ app.get("/api/auth-session", async (req, res) => {
     });
   }
 });
+
+app.use("/api/users", userRoutes);
 
 app.use((req, res) => {
   res.status(404).send({

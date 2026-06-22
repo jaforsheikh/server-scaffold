@@ -18,9 +18,9 @@ export const mongoClient = new MongoClient(uri, {
 export const database = mongoClient.db(dbName);
 
 export const collections = {
-  users: database.collection("users"),
+  users: database.collection("user"),
   donationRequests: database.collection("donationRequests"),
-  funds: database.collection("funds"),
+  fundings: database.collection("fundings"),
 };
 
 export const connectDB = async () => {
