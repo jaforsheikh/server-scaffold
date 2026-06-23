@@ -7,6 +7,7 @@ import { connectDB } from "./db.js";
 import userRoutes from "./routes/userRoutes.js";
 import donationRequestRoutes from "./routes/donationRequestRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import jwtRoutes from "./routes/jwtRoutes.js";
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use(async (req, res, next) => {
     next();
   } catch (error) {
     console.error("Database connection failed:", error);
+
     res.status(500).send({
       success: false,
       message: "Database connection failed.",
@@ -60,6 +62,7 @@ app.get("/health", (req, res) => {
   });
 });
 
+app.use("/api/jwt", jwtRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/donation-requests", donationRequestRoutes);
 app.use("/api/dashboard", dashboardRoutes);
