@@ -1,10 +1,11 @@
+import "dotenv/config";
 import { MongoClient, ServerApiVersion } from "mongodb";
 
 const uri = process.env.MONGODB_URI;
 const dbName = process.env.DB_NAME || "Scaffold";
 
 if (!uri) {
-  throw new Error("MONGODB_URI is missing in .env file.");
+  throw new Error("MONGODB_URI is missing in environment variables.");
 }
 
 export const mongoClient = new MongoClient(uri, {
@@ -19,6 +20,8 @@ export const database = mongoClient.db(dbName);
 
 export const collections = {
   users: database.collection("user"),
+  accounts: database.collection("account"),
+  sessions: database.collection("session"),
   donationRequests: database.collection("donationRequests"),
   fundings: database.collection("fundings"),
 };

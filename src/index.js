@@ -1,15 +1,12 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./auth.js";
 import { connectDB } from "./db.js";
 import userRoutes from "./routes/userRoutes.js";
 import donationRequestRoutes from "./routes/donationRequestRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
-import fundingRoutes from "./routes/fundingRoutes.js";
-
-dotenv.config();
 
 const app = express();
 
@@ -52,7 +49,6 @@ app.get("/health", (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/donation-requests", donationRequestRoutes);
 app.use("/api/dashboard", dashboardRoutes);
-app.use("/api/fundings", fundingRoutes);
 
 app.use((req, res) => {
   res.status(404).send({
