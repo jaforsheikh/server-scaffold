@@ -8,14 +8,26 @@ if (!uri) {
   throw new Error("MONGODB_URI is missing in environment variables.");
 }
 
-export const mongoClient = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
+let cachedClient = globalThis._mongoClient;
+let cachedClientPromise = globalThis._mongoClientPromise;
 
+if (!cachedClientPromise) {
+  cachedClient = new MongoClient(uri, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    },
+  });
+
+  cachedClientPromise = cachedClient.connect();
+
+  globalThis._mongoClient = cachedClient;
+  globalThis._mongoClientPromise = cachedClientPromise;
+}
+
+export const mongoClient = cachedClient;
+export const mongoClientPromise = cachedClientPromise;
 export const database = mongoClient.db(dbName);
 
 export const collections = {
@@ -27,7 +39,7 @@ export const collections = {
 };
 
 export const connectDB = async () => {
-  await mongoClient.connect();
+  await mongoClientPromise;
   await database.command({ ping: 1 });
   console.log(`Pinged MongoDB. Connected to database: ${dbName}`);
 };

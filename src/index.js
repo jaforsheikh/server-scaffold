@@ -28,6 +28,20 @@ app.use(
   })
 );
 
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error("Database connection failed:", error);
+    res.status(500).send({
+      success: false,
+      message: "Database connection failed.",
+      error: error.message,
+    });
+  }
+});
+
 app.all("/api/auth/{*path}", toNodeHandler(auth));
 
 app.use(express.json());
@@ -57,16 +71,10 @@ app.use((req, res) => {
   });
 });
 
-connectDB()
-  .then(() => {
-    if (process.env.NODE_ENV !== "production") {
-      app.listen(port, () => {
-        console.log(`Server running on port ${port}`);
-      });
-    }
-  })
-  .catch((error) => {
-    console.error("MongoDB connection error:", error);
+if (process.env.NODE_ENV !== "production") {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
   });
+}
 
 export default app;
